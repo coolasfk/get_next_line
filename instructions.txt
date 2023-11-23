@@ -1,0 +1,20 @@
+/ Allocate memory for the string called buf_line of the BUFFER_SIZE + 1 
+(for the null terminator)
+// Read from the file up to BUFFER_SIZE characters
+or until a newline character (\n) is encountered
+// Terminate the read characters with a '\0' to make it a proper C string
+// If the string ends with a newline character (\n):
+//   - This indicates the end of a line
+//   - Store this line in a node
+//   - Prepare buf_line for the next read operation (may involve resetting the buffer position)
+//   - Repeat the process from the start for the next line
+// Otherwise (no newline found and buffer is full):
+//   - The current line is longer than BUFFER_SIZE
+//   - Allocate a new larger buffer or use a dynamic data structure to store the line (like a linked list)
+//   - Append the new chunk read from the file to this larger buffer or data structure
+//   - Continue reading more characters from the file and appending them until a newline character is encountered
+// Once a newline is found, or if the read function returns 0 (end of file):
+//   - Assign the accumulated line to a node
+//   - Free the temporary buffer if it's no longer needed or reallocate it for the next line
+// Continue this process until the read function returns -1 (error) or 0 (end of the file)
+// Return the line read or NULL if no more lines are left to read or an error occurred
