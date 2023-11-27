@@ -6,7 +6,7 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:48 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/11/23 23:47:57 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/11/27 12:30:54 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ char	*ft_strjoin(char *s1, char *s2)
 
 	i = 0;
 	c = 0;
+	// printf("s1, s2: %s %s\n", s1, s2);
 	if (!s1 || !s2)
 		return (NULL);
 	len = ft_strlen(s1) + ft_strlen(s2);
@@ -71,9 +72,81 @@ size_t	ft_strlen(char *str)
 	return (i);
 }
 
+char	*ft_strrchr(char *s, int c)
+{
+	int	len;
+
+	len = 0;
+	c = c % 256;
+	while (s[len])
+		len++;
+	while (len > -1)
+	{
+		if (s[len] == c)
+			return ((char *)s + len);
+		len--;
+	}
+	return (NULL);
+}
+
 /*
 The	strdup(void) function creates a duplicate of the string pointed to by src,
 and returns a pointer to the new copy.
 The		strdup(void) function allocates the memory for the new string by calling malloc();
 it's up to you to release the memory by calling free().
 */
+
+void	*ft_memmove(void *dst, void *src, size_t len)
+{
+	size_t	i;
+	char	*d;
+	char	*s;
+
+	d = (char *)dst;
+	s = (char *)src;
+	i = 0;
+	if (d < s)
+	{
+		while (i < len)
+		{
+			d[i] = s[i];
+			i++;
+		}
+	}
+	else if (d > s)
+	{
+		while (len > 0)
+		{
+			d[len - 1] = s[len - 1];
+			len--;
+		}
+	}
+	return (d);
+}
+
+
+char	*ft_substr(char *s, unsigned int strt, size_t len)
+{
+	size_t			i;
+	char			*new;
+	unsigned int	s_len;
+
+	i = 0;
+	if (!s)
+		return (NULL);
+	s_len = ft_strlen(s);
+	if (s[i] == '\0' || strt > s_len)
+		return (ft_strdup(""));
+	if (s_len - strt < len)
+		len = s_len - strt;
+	new = (char *)malloc(len * sizeof(char) + 1);
+	if (!new)
+		return (NULL);
+	while (len > i)
+	{
+		new[i] = s[strt + i];
+		i++;
+	}
+	new[i] = '\0';
+	return (new);
+}

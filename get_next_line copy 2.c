@@ -6,7 +6,7 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:52 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/11/27 18:19:58 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/11/24 23:22:44 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@ typedef struct s_list
 */
 
 #include "get_next_line.h"
-static t_list	*head;
+
 void	add_line_to_list(char *line)
 {
-	
+	static t_list	*head;
 	t_list			*new;
 	t_list			*ptr;
 
@@ -47,20 +47,6 @@ void	add_line_to_list(char *line)
 	}
 }
 
-void free_list(t_list **head) {
-    t_list *current;
-    t_list *next;
-
-    current = *head;
-    while (current != NULL) {
-        next = current->next;
-        free(current->content);
-        free(current); 
-        current = next;
-    }
-    *head = NULL; 
-}
-
 char	*make_full_line(char *buff_line, char *line)
 {
 	int		i;
@@ -79,93 +65,67 @@ char	*make_full_line(char *buff_line, char *line)
 			i++;
 		}
 		new_line[i] = '\0';
+		// printf("new line1 %s\n", new_line);
 		return (new_line);
 	}
 	else if (line != NULL)
 	{
-		i = 0;
-		while (buff_line[i] != '\0')
-		{
-			if (buff_line[i] == '\n')
-			{
-				buff_line[i] = '\0';
-				break ;
-			}
-			i++;
-		}
 		new_line = ft_strjoin(line, buff_line);
-		
+		free(line);
 		line = NULL;
 	}
 	// printf("new line2 %s\n", new_line);
 	return (new_line);
 }
-char	*find_reminder(char *buff_line)
-{
-	int		i;
-	char	*reminder;
-
-	reminder = NULL;
-	i = 0;
-	// printf("=====buff_line: %s\n\n", buff_line);
-	while (buff_line[i] != '\0')
-	{
-		if (buff_line[i] == '\n')
-		{
-			reminder = ft_substr(buff_line, i+1, BUFFER_SIZE - i - 1);
-			// printf("=====reminder %s\n\n", reminder);
-			return (reminder);
-		}
-		i++;
-	}
-	// printf("new line2 %s\n", new_line);
-	return (reminder);
-}
 
 char	*get_next_line(int fd)
 {
-	char		*buff_line;
-	int			bytes_read;
-	static char	*line;
-	static char	*reminder;
-if (fd < 0 || fd > 4095 || BUFFER_SIZE <= 0)
-		return (NULL);
-	if (reminder != NULL)
-	{
-		line = reminder;
-		free(reminder);
-		reminder = NULL;
-	}
+	char	*buff_line;
+	int		byte_read;
+	int		i;
+	char	*line;
 	
-	buff_line = (char *)malloc(BUFFER_SIZE * sizeof(char) + 1);
+	line = NULL;
+	i = 0;
+	
+	buff_line = (char *)malloc(BUFFER_S * sizeof(char) + 1);
 	if (!buff_line)
 		return (NULL);
-	bytes_read = read(fd, buff_line, BUFFER_SIZE);
-	if (bytes_read == 0)
-	{
-free_list(&head);
+	if (fd < 0 || fd > 4095 || BUFFER_S<= 0 || read(fd, buff_line, 0) < 0)
 		return (NULL);
-	}
-		
-	buff_line[bytes_read] = '\0';
-	// printf("buff_line %s\n", buff_line);
-	if (ft_strrchr(buff_line, '\n') == NULL)
+	while ((byte_read = read(fd, buff_line, BUFFER_S)) > 0)
 	{
-		line = make_full_line(buff_line, line);
-	}
-	else if (ft_strrchr(buff_line, '\n') != NULL)
-	{
-		reminder = find_reminder(buff_line);
-		line = make_full_line(buff_line, line);
-		add_line_to_list(line);
-		free(buff_line);
+		printf("****buff_read %d\n", byte_read);
+		buff_line[byte_read] = '\0';
+		i = 0;
 		
-		return (line);
+		while (buff_line[i] != '\0')
+		{
+			if (buff_line[i] == '\n')
+			{
+				buff_line[i] = '\0';
+				printf("strlen %zu\n", ft_strlen(buff_line));
+				printf("---buff_read %d\n", byte_read);
+				add_line_to_list(line);
+				
+				break ;
+			}
+			i++;
+		}
+		line = make_full_line(buff_line, line);
+		// printf("***line %s\n", line);
 	}
 	free(buff_line);
-	return (get_next_line(fd));
+	// printf("line1: %s\n", line);
+	/*
+	if (byte_read < 1)
+	{
+		return (NULL);
+	}*/
+	// printf("line2: %s\n", line);
+	return (line);
 }
-/*
+
 int	main(void)
 {
 	char	*r;
@@ -174,9 +134,8 @@ int	main(void)
 	fd = open("instructions.txt", O_RDONLY);
 	while ((r = get_next_line(fd)) != NULL)
 	{
-		printf("***---r %s\n", r);
+		printf("***---r %s", r);
 	}
 	close(fd);
 	return (0);
 }
-*/
