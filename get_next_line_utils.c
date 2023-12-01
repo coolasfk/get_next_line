@@ -6,7 +6,7 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:48 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/11/27 12:30:54 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/11/28 19:33:26 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,20 +72,21 @@ size_t	ft_strlen(char *str)
 	return (i);
 }
 
-char	*ft_strrchr(char *s, int c)
-{
-	int	len;
 
-	len = 0;
+char	*ft_strchr(const char *s, int c)
+{
+	int	i;
+
 	c = c % 256;
-	while (s[len])
-		len++;
-	while (len > -1)
+	i = 0;
+	while (s[i])
 	{
-		if (s[len] == c)
-			return ((char *)s + len);
-		len--;
+		if (s[i] == c)
+			return ((char *)s + i);
+		i++;
 	}
+	if (s[i] == c)
+		return ((char *)s + i);
 	return (NULL);
 }
 

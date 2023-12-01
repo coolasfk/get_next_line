@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line copy 2.c                             :+:      :+:    :+:   */
+/*   get_next_line copy.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -19,13 +19,12 @@ typedef struct s_list
 */
 
 #include "get_next_line.h"
-
-/*
-static t_list		*head;
+static t_list	*head;
 void	add_line_to_list(char *line)
 {
-	t_list	*new;
-	t_list	*ptr;
+	
+	t_list			*new;
+	t_list			*ptr;
 
 	// printf("%s", "hello\n");
 	// printf("line: %s", line);
@@ -48,22 +47,20 @@ void	add_line_to_list(char *line)
 	}
 }
 
-void	free_list(t_list **head)
-{
-	t_list	*current;
-	t_list	*next;
+void free_list(t_list **head) {
+    t_list *current;
+    t_list *next;
 
-	current = *head;
-	while (current != NULL)
-	{
-		next = current->next;
-		free(current->content);
-		free(current);
-		current = next;
-	}
-	*head = NULL;
+    current = *head;
+    while (current != NULL) {
+        next = current->next;
+        free(current->content);
+        free(current); 
+        current = next;
+    }
+    *head = NULL; 
 }
-*/
+
 char	*make_full_line(char *buff_line, char *line)
 {
 	int		i;
@@ -97,8 +94,8 @@ char	*make_full_line(char *buff_line, char *line)
 			i++;
 		}
 		new_line = ft_strjoin(line, buff_line);
-		// free(line);
-		// line = NULL;
+		
+		line = NULL;
 	}
 	// printf("new line2 %s\n", new_line);
 	return (new_line);
@@ -115,8 +112,7 @@ char	*find_*reminder(char *buff_line)
 	{
 		if (buff_line[i] == '\n')
 		{
-			// *reminder = ft_substr(buff_line, i + 1, BUFFER_SIZE - i - 1);
-			*reminder = ft_substr(buff_line, i + 1, BUFFER_SIZE - i - 1);
+			*reminder = ft_substr(buff_line, i+1, BUFFER_SIZE - i - 1);
 			// printf("=====*reminder %s\n\n", *reminder);
 			return (*reminder);
 		}
@@ -132,58 +128,43 @@ char	*get_next_line(int fd)
 	int			bytes_read;
 	static char	*line;
 	static char	*reminder;
-
-	if (fd < 0 || fd > 4095 || BUFFER_SIZE <= 0)
+if (fd < 0  || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (*reminder != NULL)
 	{
-		if (line != NULL)
-		{
-			// free(line);
-			line = NULL;
-		}
 		line = *reminder;
+		free(*reminder);
 		*reminder = NULL;
 	}
+	
 	buff_line = (char *)malloc(BUFFER_SIZE * sizeof(char) + 1);
 	if (!buff_line)
 		return (NULL);
 	bytes_read = read(fd, buff_line, BUFFER_SIZE);
-	if (bytes_read <= 0)
+	if (bytes_read == 0)
 	{
-		if (bytes_read == 0 && line != NULL)
-		{
-			// free_list(&head);
-			return (line);
-		}
-		//free(buff_line);
-		//buff_line = NULL;
-		//free(line);
-		//line = NULL;
-
-		// free(*reminder);
-		// free(line);
+free_list(&head);
 		return (NULL);
 	}
+		
 	buff_line[bytes_read] = '\0';
+	// printf("buff_line %s\n", buff_line);
 	if (ft_strrchr(buff_line, '\n') == NULL)
 	{
 		line = make_full_line(buff_line, line);
-		// free(buff_line);
-		// buff_line = NULL;
-		return (get_next_line(fd));
 	}
-	else
+	else if (ft_strrchr(buff_line, '\n') != NULL)
 	{
 		*reminder = find_*reminder(buff_line);
 		line = make_full_line(buff_line, line);
-		// add_line_to_list(line);
-		// free(buff_line);
-		// buff_line = NULL;
+		add_line_to_list(line);
+		free(buff_line);
+		
 		return (line);
 	}
+	free(buff_line);
+	return (get_next_line(fd));
 }
-
 /*
 int	main(void)
 {
