@@ -6,7 +6,7 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:48 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/11/28 19:33:26 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/12/04 11:49:01 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,6 @@ size_t	ft_strlen(char *str)
 	return (i);
 }
 
-
 char	*ft_strchr(const char *s, int c)
 {
 	int	i;
@@ -125,7 +124,6 @@ void	*ft_memmove(void *dst, void *src, size_t len)
 	return (d);
 }
 
-
 char	*ft_substr(char *s, unsigned int strt, size_t len)
 {
 	size_t			i;
@@ -150,4 +148,23 @@ char	*ft_substr(char *s, unsigned int strt, size_t len)
 	}
 	new[i] = '\0';
 	return (new);
+}
+int	ft_strcpy(char *dst, char *src)
+{
+	char *d;
+	char *s;
+	size_t i;
+
+	i = 0;
+	d = (char *)dst;
+	s = (char *)src;
+
+	while (src[i] != '\0')
+	{
+		d[i] = s[i];
+		i++;
+	}
+	d[i] = '\0';
+
+	return (ft_strlen(src));
 }

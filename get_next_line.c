@@ -6,7 +6,7 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:52 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/12/01 11:00:52 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/12/06 09:30:52 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,35 +18,41 @@ char	*find_n(char *entire_buff, int *len, t_list **reminder)
 	char	*new_content;
 	int		count;
 
+	(void)*len;
 	i = 0;
 	count = 0;
-	// printf("^^^^^^^21entire buff: %s\n", entire_buff);
 	while (entire_buff[i] != '\n' && entire_buff[i] != '\0')
 		i++;
-	*len += i;
+	//*len += i;
 	new_content = ft_substr(entire_buff, 0, i);
-	if (BUFFER_SIZE > i)
+	if (entire_buff[i] == '\n')
 	{
-		*reminder = (t_list *)malloc(sizeof(t_list));
-		if (!*reminder)
-			return (NULL);
-		(*reminder)->content = (char *)malloc(BUFFER_SIZE - i * sizeof(char)
-				+ 1);
-		if (!(*reminder)->content)
-			return (NULL);
-		i += 1;
-		while (BUFFER_SIZE > i)
+		i++;
+		if (BUFFER_SIZE > i && entire_buff[i] != '\0')
 		{
-			(*reminder)->content[count] = entire_buff[i];
-			count++;
-			i++;
+			*reminder = (t_list *)malloc(sizeof(t_list));
+			if (!*reminder)
+				return (NULL);
+			(*reminder)->content = (char *)malloc(BUFFER_SIZE - i + 1);
+			if (!(*reminder)->content)
+			{
+				free(*reminder);
+				return (NULL);
+			}
+			while (entire_buff[i] != '\0')
+			{
+				(*reminder)->content[count++] = entire_buff[i++];
+			}
+			(*reminder)->content[count] = '\0';
+			(*reminder)->next = NULL;
+			//*len += count;
+			// printf("(*reminder)->content[count] %s\n", (*reminder)->content);
 		}
-		(*reminder)->content[count] = '\0';
-		// printf("--------------------*reminder: %s\n", (*reminder)->content);
 	}
-	// printf("^^^^^^^27new_content %s\n", new_content);
+	// printf("new_content %s\n", new_content);
 	return (new_content);
 }
+
 void	print_list_and_count(t_list **m_list)
 {
 	int		count;
@@ -75,120 +81,64 @@ void	print_list_and_count(t_list **m_list)
 	printf("Total number of nodes in the list: %d\n", count);
 }
 
-char	*find_line(int fd, t_list **m_list, int *len)
+char	*find_line(int fd, t_list **m_list, int *len, t_list **reminder)
 {
-	t_list			*temp;
-	int				bytes_read;
-	t_list			*ptr;
-	static t_list	*reminder;
+	int		bytes_read;
+	char	buffer[BUFFER_SIZE + 1];
 
-	reminder = NULL;
-	if (*m_list == NULL || (*m_list)->content == NULL)
+	t_list *temp, *last;
+	*m_list = NULL;
+	while (1)
 	{
-		temp = (*m_list == NULL) ? (t_list *)malloc(sizeof(t_list)) : *m_list;
-		if (!temp)
-			return (NULL);
-		temp->content = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-		if (!temp->content)
-			return (NULL);
-		bytes_read = read(fd, temp->content, BUFFER_SIZE);
-		/*if (bytes_read <= 0)
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read < 0)
 		{
-			printf("temp=>content %s", "temp->content");
-			free(temp->content);
+			free_list(m_list);
+			return (NULL); 
+		}
+
+		if (bytes_read == 0)
+		{
 			if (*m_list == NULL)
-				free(temp);
-			return (NULL);
+			{
+				return (NULL); 
+			}
+			break; 
 		}
-*/
-if (bytes_read == 0) // Check for EOF
-{
-    if (*len > 0) // There's data in the buffer
-    {
-		printf("check %s", "yes");
-        // Process the remaining data as the last line
-        return extract_line(m_list, len);
-    }
-    else
-    {
-        // No more data to read, return NULL
-        return NULL;
-    }
-}
-		temp->content[bytes_read] = '\0';
-		
-		*len += bytes_read;
-		if (*m_list == NULL)
-		{
-			*m_list = temp;
-			temp->next = NULL;
-		}
-		if (ft_strchr(temp->content, '\n'))
-		{
-			temp->content = find_n(temp->content, len, &reminder);
-			printf("$$$$$$$$$$$$$temp->content: %s\n", temp->content);
-			printf("------------r-------*reminder: %s\n", reminder->content);
-			// printf("-----r--------------*reminder: %s\n",
-			return (extract_line(m_list, len /*, &reminder*/));
-		}
-	}
-	else
-	{
-		// Handle the creation of subsequent nodes
+
+		buffer[bytes_read] = '\0';
 		temp = (t_list *)malloc(sizeof(t_list));
 		if (!temp)
 			return (NULL);
-		temp->content = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
+		temp->content = strdup(buffer);
+		temp->next = NULL;
 		if (!temp->content)
 		{
 			free(temp);
 			return (NULL);
 		}
-		bytes_read = read(fd, temp->content, BUFFER_SIZE);
-		temp->content[bytes_read] = '\0';
-		/*
-		if (bytes_read <= 0)
+
+		if (!*m_list)
 		{
-			extract_line(m_list, len, &reminder);
-			printf("136-7777temp->content %s\n", temp->content);
-			free(temp->content);
-			free(temp);
-			return (NULL);
+			*m_list = temp;
 		}
-		*/
-		
-		if (bytes_read == 0) // Check for EOF
-{
-    if (*len > 0) // There's data in the buffer
-    {
-		printf("164check %d\n", *len);
-        // Process the remaining data as the last line
-        return extract_line(m_list, len);
-    }
-    else
-    {
-        // No more data to read, return NULL
-        return NULL;
-    }
-}
-		printf("temp->content %s\n", temp->content);
-		*len += bytes_read;
-		ptr = *m_list;
-		while (ptr->next != NULL)
-			ptr = ptr->next;
-		ptr->next = temp;
-		temp->next = NULL;
-		if (ft_strchr(temp->content, '\n'))
+		else
 		{
-			temp->content = find_n(temp->content, len, &reminder);
-			printf("--------------------*reminder: %s\n", reminder->content);
-			return (extract_line(m_list, len /*, &reminder*/));
+			last = *m_list;
+			while (last->next)
+				last = last->next;
+			last->next = temp;
 		}
+
+		if (ft_strchr(buffer, '\n') || bytes_read < BUFFER_SIZE)
+			break; // Newline found or EOF reached
 	}
-	return (find_line(fd, m_list, len));
+	
+	return (extract_line(m_list, len, reminder));
 }
 
-char	*extract_line(t_list **m_list, int *len /*, t_list **reminder*/)
+
+char	*extract_line(t_list **m_list, int *len, t_list **reminder)
 {
 	char	*line;
 	int		i;
@@ -199,29 +149,25 @@ char	*extract_line(t_list **m_list, int *len /*, t_list **reminder*/)
 	count = 0;
 	i = 0;
 	ptr = *m_list;
-	/*if (*reminder)
+	*len = 0;
+	while (ptr != NULL)
 	{
-		while ((*reminder)->content[i] != '\0')
-			len++;
 		i = 0;
-		printf("--------------------*reminder: %s\n", (*reminder)->content);
+		while (ptr->content[i] != '\0')
+		{
+			(*len)++;
+			i++;
+		}
+		ptr = ptr->next;
 	}
-	*/
+	i = 0;
+	ptr = *m_list;
 	line = (char *)malloc((*len + 1) * sizeof(char));
 	if (!line)
 		return (NULL);
 	while (i < *len && ptr != NULL)
 	{
-		/*if (*reminder)
-		{
-			while ((*reminder)->content[i] != '\0')
-			{
-				line[i] = (*reminder)->content[i];
-				i++;
-			}
-		}*/
-		//printf("$$$$$$$$$$$$$$$ptr->content %s\n", ptr->content);
-		if (ptr->content == NULL || ptr->content[count] == '\0')
+		if (ptr->content[count] == '\0')
 		{
 			ptr = ptr->next;
 			count = 0;
@@ -230,9 +176,7 @@ char	*extract_line(t_list **m_list, int *len /*, t_list **reminder*/)
 		line[i++] = ptr->content[count++];
 	}
 	line[i] = '\0';
-	
 	ptr = *m_list;
-	
 	while (ptr != NULL)
 	{
 		next = ptr->next;
@@ -241,9 +185,37 @@ char	*extract_line(t_list **m_list, int *len /*, t_list **reminder*/)
 		ptr = next;
 	}
 	*m_list = ptr;
-printf("244aaaaaaLINE %s\n", line);
-printf("245check %d\n", *len);
+	i = 0;
+	if (*reminder)
+	{
+		if (*m_list == NULL)
+		{
+			*m_list = *reminder;
+		}
+		else
+		{
+			ptr = *m_list;
+			while (ptr->next != NULL)
+			{
+				ptr = ptr->next;
+			}
+			ptr->next = *reminder;
+		}
+		*reminder = NULL;
+	}
 	return (line);
+}
+void	free_list(t_list **list)
+{
+	t_list	*temp;
+
+	while (*list)
+	{
+		temp = (*list)->next;
+		free((*list)->content);
+		free(*list);
+		*list = temp;
+	}
 }
 
 char	*get_next_line(int fd)
@@ -251,16 +223,18 @@ char	*get_next_line(int fd)
 	static t_list	*m_list = NULL;
 	char			*line;
 	static int		len;
+	static t_list	*reminder;
 
+	reminder = NULL;
 	len = 0;
 	line = NULL;
 	if (fd < 0 || fd > 4095 || BUFFER_SIZE <= 0)
 		return (NULL);
-	line = find_line(fd, &m_list, &len);
-	printf("228-aaaaaaLINE %s", line);
+	line = find_line(fd, &m_list, &len, &reminder);
+	// printf("228-aaaaaaLINE %s", line);
 	return (line);
 }
-
+/*
 int	main(void)
 {
 	char	*r;
@@ -274,3 +248,4 @@ int	main(void)
 	close(fd);
 	return (0);
 }
+*/
