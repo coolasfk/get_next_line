@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line copy.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:52 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/12/06 14:38:31 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/12/06 14:08:47 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ new_content = ft_substr(entire_buff, 0, i+1);
 
 	if (entire_buff[i] == '\n')
 	{
-		i++;
+		//i++;
 		if (BUFFER_SIZE > i && entire_buff[i] != '\0')
 		{
 			*reminder = (t_list *)malloc(sizeof(t_list));
