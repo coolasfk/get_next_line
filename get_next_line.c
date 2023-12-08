@@ -6,105 +6,125 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:52 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/12/06 14:38:31 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/12/08 20:26:31 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*find_n(char *entire_buff, int *len, t_list **reminder)
+char	*find_n(char *entire_buff, t_list **reminder)
 {
 	int		i;
-char *new_content;
+	char	*new_content;
 	int		count;
 
-	(void)*len;
 	i = 0;
 	count = 0;
 	while (entire_buff[i] != '\n' && entire_buff[i] != '\0')
 		i++;
-	//*len += i;
-new_content = ft_substr(entire_buff, 0, i+1);
-
-	if (entire_buff[i] == '\n')
+	if (entire_buff[i] == '\0')
 	{
-		i++;
-		if (BUFFER_SIZE > i && entire_buff[i] != '\0')
-		{
-			*reminder = (t_list *)malloc(sizeof(t_list));
-			if (!*reminder)
-				return NULL;
-			(*reminder)->content = (char *)malloc(BUFFER_SIZE - i + 1);
-			if (!(*reminder)->content)
-			{
-				free(*reminder);
-				return NULL;
-			}
-			while (entire_buff[i] != '\0')
-			{
-				(*reminder)->content[count++] = entire_buff[i++];
-			}
-			(*reminder)->content[count] = '\0';
-			(*reminder)->next = NULL;
-			//*len += count;
-			//printf("(*reminder)->content[count] %s\n", (*reminder)->content);
-		}
+		return (ft_substr(entire_buff, 0, i));
 	}
-	//printf("........new_content %s\n", new_content);
+	new_content = ft_substr(entire_buff, 0, i + 1);
+	if (entire_buff[i] == '\0')
+		return (new_content);
+	i++;
+	if (BUFFER_SIZE > i && entire_buff[i] != '\0')
+	{
+		*reminder = (t_list *)malloc(sizeof(t_list));
+		if (!*reminder)
+			return (NULL);
+		(*reminder)->content = (char *)malloc(BUFFER_SIZE - i + 1);
+		if (!(*reminder)->content)
+		{
+			free(new_content);
+			free(*reminder);
+			return (NULL);
+		}
+		while (entire_buff[i] != '\0')
+		{
+			(*reminder)->content[count++] = entire_buff[i++];
+		}
+		(*reminder)->content[count] = '\0';
+		(*reminder)->next = NULL;
+	}
 	return (new_content);
 }
 
-char	*find_line(int fd, t_list **m_list, int *len, t_list **reminder)
+char	*find_line(int fd, t_list **m_list, t_list **reminder)
 {
 	int		bytes_read;
 	char	buffer[BUFFER_SIZE + 1];
+	t_list	*temp;
+	t_list	*last;
+	char	*temp_content;
 
-	t_list *temp, *last;
-	
+	temp_content = NULL;
 	while (1)
 	{
+		/*
+		if (*m_list != NULL && (*m_list)->content[0] == '\n')
+		{
+			if((*m_list)->content[0] == '\n')
+			temp_content = find_n((*m_list)->content, reminder,
+					(int)ft_strlen((*m_list)->content));
+			free((*m_list)->content); // Free the old content
+			(*m_list)->content = temp_content ? temp_content : ft_strdup("\n");
+			break ;
+		}*/
+		/*
+		else if (*m_list != NULL)
+		{
+			temp_content = find_n((*m_list)->content, reminder,
+			(int)ft_strlen((*m_list)->content));
+			free((*m_list)->content); // Free the old content
+			(*m_list)->content = temp_content ? temp_content : ft_strdup("\n");
+			break ;
+		}
+*/
+		if (*m_list != NULL && ft_strchr((*m_list)->content, '\n'))
+		{
+			temp_content = find_n((*m_list)->content, reminder);
+			free((*m_list)->content);
+			(*m_list)->content = temp_content;
+			break ;
+		}
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read < 0)
 		{
+			// free((*reminder)->content);
+			free(*reminder);
 			free_list(m_list);
-			return (NULL); 
+			return (NULL);
 		}
-		
 		if (bytes_read == 0)
 		{
 			if (*m_list == NULL)
 			{
-				return (NULL); 
+				return (NULL);
 			}
-			break; 
+			break ;
 		}
-
 		buffer[bytes_read] = '\0';
-		
+		bytes_read = (int)ft_strlen(buffer);
 		temp = (t_list *)malloc(sizeof(t_list));
 		if (!temp)
 			return (NULL);
-		
-		if(ft_strchr(buffer, '\n'))
+		if (ft_strchr(buffer, '\n'))
 		{
-			temp->content = find_n(buffer, len, reminder);
+			temp->content = find_n(buffer, reminder);
 		}
 		else
 		{
 			temp->content = ft_strdup(buffer);
 		}
-			
-			temp->next = NULL;
-			//printf("temp_content %s\n", temp->content);
-	
-		
-		
+		temp->next = NULL;
 		if (!temp->content)
 		{
 			free(temp);
 			return (NULL);
 		}
-
 		if (!*m_list)
 		{
 			*m_list = temp;
@@ -118,18 +138,13 @@ char	*find_line(int fd, t_list **m_list, int *len, t_list **reminder)
 		}
 		if (ft_strchr(buffer, '\n') || bytes_read < BUFFER_SIZE)
 		{
-			
-			
-		break; 
+			break ;
 		}
-	
 	}
-	
-	return (extract_line(m_list, len, reminder));
+	return (extract_line(m_list, reminder));
 }
 
-
-char	*extract_line(t_list **m_list, int *len, t_list **reminder)
+char	*extract_line(t_list **m_list, t_list **reminder)
 {
 	char	*line;
 	int		i;
@@ -140,26 +155,23 @@ char	*extract_line(t_list **m_list, int *len, t_list **reminder)
 	count = 0;
 	i = 0;
 	ptr = *m_list;
-	*len = 0;
-	
 	while (ptr != NULL)
 	{
-		i = 0;
-		//printf("ptr->content[i] %s\n", ptr->content);
-		while (ptr->content[i] != '\0')
+		count = 0;
+		while (ptr->content[count] != '\0')
 		{
-					//printf("-------ptr->content[i] %c\n", ptr->content[i]);
-			(*len)++;
+			count++;
 			i++;
 		}
 		ptr = ptr->next;
 	}
-	i = 0;
 	ptr = *m_list;
-	line = (char *)malloc((*len + 1) * sizeof(char));
+	line = (char *)malloc((i + 1) * sizeof(char));
 	if (!line)
 		return (NULL);
-	while (i < *len && ptr != NULL)
+	i = 0;
+	count = 0;
+	while (ptr != NULL)
 	{
 		if (ptr->content[count] == '\0')
 		{
@@ -184,18 +196,17 @@ char	*extract_line(t_list **m_list, int *len, t_list **reminder)
 	{
 		if (*m_list == NULL)
 		{
-			*m_list = *reminder;
-		}
-		else
-		{
-			ptr = *m_list;
-			while (ptr->next != NULL)
+			*m_list = (t_list *)malloc(sizeof(t_list));
+			if (!*m_list)
 			{
-				ptr = ptr->next;
+				return (NULL);
 			}
-			ptr->next = *reminder;
+			(*m_list)->content = ft_strdup((*reminder)->content);
+			(*m_list)->next = NULL;
+			free((*reminder)->content);
+			free(*reminder);
+			*reminder = NULL;
 		}
-		*reminder = NULL;
 	}
 	return (line);
 }
@@ -216,17 +227,13 @@ char	*get_next_line(int fd)
 {
 	static t_list	*m_list = NULL;
 	char			*line;
-	static int		len;
 	static t_list	*reminder;
 
 	reminder = NULL;
-	len = 0;
 	line = NULL;
 	if (fd < 0 || fd > 4095 || BUFFER_SIZE <= 0)
 		return (NULL);
-	
-	line = find_line(fd, &m_list, &len, &reminder);
-	// printf("228-aaaaaaLINE %s", line);
+	line = find_line(fd, &m_list, &reminder);
 	return (line);
 }
 /*
