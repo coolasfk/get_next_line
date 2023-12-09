@@ -6,7 +6,7 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:42 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/12/09 18:10:22 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/12/09 19:35:14 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,6 @@ size_t				ft_strlen(char *str);
 char				*ft_strchr(const char *s, int c);
 t_list				*set_reminder(t_list **reminder, int i, char *entire_buff);
 char				*find_n(char *entire_buff, t_list **reminder);
-/*
-char				*extract_line(t_list **m_list, t_list **reminder);
-void				append_to_list(t_list **m_list, char *buffer);
-char				*find_line(int fd, t_list **m_list, t_list **reminder);
-char				*get_next_line(int fd);
-void	free_list(t_list **list);*/
 int					read_line(int fd, char *buffer, int *bytes_read);
 int					append_to_list(t_list **m_list, char *buffer,
 						t_list **reminder);
