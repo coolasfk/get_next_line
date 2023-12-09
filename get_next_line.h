@@ -6,7 +6,7 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:42 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/12/09 13:33:13 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/12/09 18:10:22 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,24 +29,24 @@ typedef struct s_list
 }					t_list;
 
 char				*get_next_line(int fd);
-
-char				*get_next_line(int fd);
-char				*ft_strjoin(char *s1, char *s2);
-char				*ft_strdup(char *s1);
+char				*ft_substr(char *s, unsigned int start, size_t len);
 size_t				ft_strlen(char *str);
 char				*ft_strchr(const char *s, int c);
-void				*ft_memmove(void *dst, void *src, size_t len);
-char				*ft_substr(char *s, unsigned int strt, size_t len);
-char				*extract_line(t_list **m_list, t_list **reminder);
-char *find_line(int fd, t_list **m_list, t_list **reminder) ;
-// t_list				*create_list(void);
+t_list				*set_reminder(t_list **reminder, int i, char *entire_buff);
 char				*find_n(char *entire_buff, t_list **reminder);
-int					ft_strcpy(char *dst, char *src);
+/*
+char				*extract_line(t_list **m_list, t_list **reminder);
+void				append_to_list(t_list **m_list, char *buffer);
+char				*find_line(int fd, t_list **m_list, t_list **reminder);
+char				*get_next_line(int fd);
+void	free_list(t_list **list);*/
+int					read_line(int fd, char *buffer, int *bytes_read);
+int					append_to_list(t_list **m_list, char *buffer,
+						t_list **reminder);
+char				*find_line(int fd, t_list **m, t_list **rem, char *temp);
+size_t				calculate_len(t_list *m_list);
+void				construct_line(char *line, t_list *m_list);
+char				*extract_line(t_list **m_list, char *line, int i, int len);
 void				free_list(t_list **list);
-t_list *set_reminder(t_list **reminder, int i, char *entire_buff);
-int read_line(int fd, char *buffer, int *bytes_read) ;
-int append_to_list(t_list **m_list, char *buffer, t_list **reminder);
-size_t calculate_total_length(t_list *m_list);
-void construct_line(char *line, t_list *m_list);
-
+char				*get_next_line(int fd);
 #endif
