@@ -6,7 +6,7 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:52 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/12/08 20:26:31 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/12/08 20:38:50 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ char	*find_line(int fd, t_list **m_list, t_list **reminder)
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read < 0)
 		{
-			// free((*reminder)->content);
+			
 			free(*reminder);
 			free_list(m_list);
 			return (NULL);
