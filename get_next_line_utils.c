@@ -6,56 +6,32 @@
 /*   By: eprzybyl <eprzybyl@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 17:17:48 by eprzybyl          #+#    #+#             */
-/*   Updated: 2023/12/04 11:49:01 by eprzybyl         ###   ########.fr       */
+/*   Updated: 2023/12/09 14:38:39 by eprzybyl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_strdup(char *s1)
+char	*ft_substr(char *s, unsigned int start, size_t len)
 {
-	int		i;
-	char	*s2;
-	int		len;
-
-	len = ft_strlen(s1);
-	i = 0;
-	s2 = (char *)malloc(len * sizeof(char) + 1);
-	if (!s2)
-		return (NULL);
-	while (i < len)
-	{
-		s2[i] = s1[i];
-		i++;
-	}
-	s2[i] = '\0';
-	return (s2);
-}
-
-char	*ft_strjoin(char *s1, char *s2)
-{
-	size_t	len;
 	char	*new;
 	size_t	i;
-	size_t	c;
+	size_t	s_len;
 
-	i = 0;
-	c = 0;
-	// printf("s1, s2: %s %s\n", s1, s2);
-	if (!s1 || !s2)
+	if (!s)
 		return (NULL);
-	len = ft_strlen(s1) + ft_strlen(s2);
-	new = (char *)malloc(len * sizeof(char) + 1);
+	s_len = ft_strlen(s);
+	if (start >= s_len || !len)
+		len = 0;
+	else if (s_len - start < len)
+		len = s_len - start;
+	new = (char *)malloc(len + 1);
 	if (!new)
 		return (NULL);
-	while (i < ft_strlen(s1))
+	i = 0;
+	while (i < len && s[start + i])
 	{
-		new[i] = s1[i];
-		i++;
-	}
-	while (i < len)
-	{
-		new[i] = s2[c++];
+		new[i] = s[start + i];
 		i++;
 	}
 	new[i] = '\0';
@@ -89,82 +65,49 @@ char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
-/*
-The	strdup(void) function creates a duplicate of the string pointed to by src,
-and returns a pointer to the new copy.
-The		strdup(void) function allocates the memory for the new string by calling malloc();
-it's up to you to release the memory by calling free().
-*/
-
-void	*ft_memmove(void *dst, void *src, size_t len)
+t_list	*set_reminder(t_list **reminder, int i, char *entire_buff)
 {
-	size_t	i;
-	char	*d;
-	char	*s;
+	int	count;
 
-	d = (char *)dst;
-	s = (char *)src;
-	i = 0;
-	if (d < s)
+	count = 0;
+	*reminder = (t_list *)malloc(sizeof(t_list));
+	if (!*reminder)
+		return (NULL);
+	(*reminder)->content = (char *)malloc(BUFFER_SIZE - i + 1);
+	if (!(*reminder)->content)
 	{
-		while (i < len)
-		{
-			d[i] = s[i];
-			i++;
-		}
+		free(*reminder);
+		return (NULL);
 	}
-	else if (d > s)
-	{
-		while (len > 0)
-		{
-			d[len - 1] = s[len - 1];
-			len--;
-		}
-	}
-	return (d);
+	while (entire_buff[i] != '\0')
+		(*reminder)->content[count++] = entire_buff[i++];
+	(*reminder)->content[count] = '\0';
+	(*reminder)->next = NULL;
+	return (*reminder);
 }
 
-char	*ft_substr(char *s, unsigned int strt, size_t len)
+char	*find_n(char *entire_buff, t_list **reminder)
 {
-	size_t			i;
-	char			*new;
-	unsigned int	s_len;
+	int		i;
+	char	*new_content;
 
 	i = 0;
-	if (!s)
-		return (NULL);
-	s_len = ft_strlen(s);
-	if (s[i] == '\0' || strt > s_len)
-		return (ft_strdup(""));
-	if (s_len - strt < len)
-		len = s_len - strt;
-	new = (char *)malloc(len * sizeof(char) + 1);
-	if (!new)
-		return (NULL);
-	while (len > i)
-	{
-		new[i] = s[strt + i];
+	while (entire_buff[i] != '\n' && entire_buff[i] != '\0')
 		i++;
-	}
-	new[i] = '\0';
-	return (new);
-}
-int	ft_strcpy(char *dst, char *src)
-{
-	char *d;
-	char *s;
-	size_t i;
-
-	i = 0;
-	d = (char *)dst;
-	s = (char *)src;
-
-	while (src[i] != '\0')
+	new_content = ft_substr(entire_buff, 0, i + 1);
+	if (BUFFER_SIZE > i + 1 && entire_buff[i + 1] != '\0')
 	{
-		d[i] = s[i];
-		i++;
+		*reminder = (t_list *)malloc(sizeof(t_list));
+		if (!*reminder)
+			return (NULL);
+		(*reminder)->content = ft_substr(entire_buff, i + 1, BUFFER_SIZE - i
+				- 1);
+		if (!(*reminder)->content)
+		{
+			free(*reminder);
+			return (NULL);
+		}
+		(*reminder)->next = NULL;
 	}
-	d[i] = '\0';
-
-	return (ft_strlen(src));
+	return (new_content);
 }
